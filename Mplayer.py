@@ -11,6 +11,7 @@ class Song:
         self.rating = -1
         self.length = length
         self.bitrate = bitrate
+        self.playlist = ""
         
     def rate(self,new_rating): 
         self.rating = new_rating
@@ -22,50 +23,79 @@ class Playlist():
     
     def add_song(self, song): 
         self.songs.append(song)
+        song.playlist = self.title
     
     def remove_song(self, song_name):
-        for i in len(self.songs):
-            if self.songs[i].title == song_name:   
-                self.songs.remove(self.songs[i])
-    
+        for song in self.songs:
+            if song.title == song_name:
+                song.playlist = ""
+                self.songs.remove(song)
+                 
     def total_length(self):
         total_length = 0
-        for i in len(self.songs): 
-            total_length+=self.songs[i].length
+        for song in self.songs: 
+            total_length+=song.length
         return total_length
     
     def remove_disrated(self):
-        for i in len(self.songs):
-            if self.songs[i].rating == -1:   
-                self.songs.remove(self.songs[i])
+        for song in self.songs:
+            if song.rating == -1: 
+                song.playlist = ""  
+                self.songs.remove(song)
     
     def remove_bad_quality(self): 
-        for i in len(self.songs):
-            if self.songs[i].bitrate < 100:   
-                self.songs.remove(self.songs[i])
+        for song in self.songs:
+            if song.bitrate < 100:   
+                self.songs.remove(song)
     
     def show_artists(self):
         artists = []
-        for i in len(self.songs): 
-            if self.songs[i].artist in artists:
+        for song in self.songs: 
+            if song.artist in artists:
                 pass
             else:
-                artists.append(self.songs[i].artist)
+                artists.append(song.artist)
+        print(artists)
     
     def __str__(self):
         song_docs = []
-        for i in self.songs:
-            song_docs.append("{} - {}: {}".format(self.songs[i].artist, self.songs[i].title, self.songs[i].length))
+        if len(self.songs) != 0:
+            for song in self.songs:
+                song_docs.append("{} - {}: {} seconds\n".format(song.artist, song.title, song.length))
+        else: 
+            print("There are no songs in this playlist!")
         return '\n'.join(song_docs) 
 
-    def save(self, playlist_title): 
-        playlist = open(f"{playlist_title}.json", "w")
-        s = f'{playlist_title} [ \n'
-        for i in len(self.songs): 
-            pass
+    def save(self): 
+        filePathNameWExt = self.title + '.json'
+        data = {}
+        with open(filePathNameWExt, 'w') as fp:
+            for song in self.songs: 
+                data['title'] = str(song.title)
+                data['artist'] = str(song.artist)
+                data['album'] = str(song.album)
+                data['rating'] = str(song.rating)
+                data['length'] = str(song.length)
+                data['bitrate'] = str(song.bitrate)
+                json.dump(data, fp)
+                fp.write('\n')
+                data = {}
+            
             
 
 
     def load(self, playlist_title): 
-        playlist = open(f"{playlist_title}.json", "r") 
+        playlist = open(f"{playlist_title}.json", "r")
+        data = []
+        i = 0
+        for line in playlist:     
+                data.append(json.loads(line))
+                song = Song(title = data[i]["title"], artist = data[i]["artist"], album = data[i]["album"], length = data[i]["length"], bitrate = data[i]["bitrate"])
+                self.songs.append(song)
+                i+=1
+        
+         
+        
+
+
          
