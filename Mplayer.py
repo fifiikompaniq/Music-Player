@@ -1,4 +1,6 @@
 import json
+import audio_metadata
+import os
 
 LOW_BITRATE = 96
 
@@ -17,8 +19,8 @@ class Song:
         self.rating = new_rating
 
 class Playlist(): 
-    def __init__(self, title): 
-        self.songs = []
+    def __init__(self, title, songs=None): 
+        self.songs = songs if songs is not None else []
         self.title = title
     
     def add_song(self, song): 
@@ -93,7 +95,16 @@ class Playlist():
                 song = Song(title = data[i]["title"], artist = data[i]["artist"], album = data[i]["album"], length = data[i]["length"], bitrate = data[i]["bitrate"])
                 self.songs.append(song)
                 i+=1
-        
+
+class MusicCrawler(): 
+    def generate_playlist(self, directory, title): 
+        playlist = []
+        for filename in os.listdir(directory):
+            file = os.path.join(directory, filename)
+            metadata = audio_metadata.load(file)
+            playlist.append(Song(title=metadata.tags.title, artist=metadata.tags.artist, album=metadata.tags.album, length=metadata.streaminfo["duration"], bitrate=metadata.streaminfo["bitrate"]))
+        return Playlist(title=title, songs=playlist)
+            
          
         
 
