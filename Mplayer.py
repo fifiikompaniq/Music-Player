@@ -19,8 +19,8 @@ class Song:
         self.rating = new_rating
 
 class Playlist(): 
-    def __init__(self, title, songs=None): 
-        self.songs = songs if songs is not None else []
+    def __init__(self, title, songs=[]): 
+        self.songs = songs
         self.title = title
     
     def add_song(self, song): 
